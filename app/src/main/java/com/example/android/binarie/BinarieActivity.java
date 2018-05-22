@@ -20,7 +20,7 @@ public class BinarieActivity extends Activity {
 
     ImageView ima;
     public static String CLOCK_UPDATE = "com.example.Binarie.CLOCK_UPDATE";
-
+    LedBox mLed[];
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -33,6 +33,19 @@ public class BinarieActivity extends Activity {
         ima.setAdjustViewBounds(true);
 
         FrameLayout mFrame = new FrameLayout(this);
+
+        String names[]= {"h1_1", "h1_2",
+                        "h0_1", "h0_2","h0_4", "h0_8",
+                        "m1_1", "m1_2","m1_4", "m1_8",
+                        "m0_1", "m0_2","m0_4", "m0_8"
+        };
+        mLed = new LedBox[names.length];
+        VectorChildFinder vector = new VectorChildFinder(this, R.drawable.fond, ima);
+        for (int i=0; i<names.length; i++ ){
+            mLed[i] = new LedBox(names[i], Integer.valueOf(names[i].substring(3)),
+                    Integer.valueOf(names[i].substring(1,2)),
+                    names[i].substring(0,1).equals("h"),  vector);
+        }
 
         updateClock();
 
@@ -77,52 +90,15 @@ public class BinarieActivity extends Activity {
 
         int currentHour = rightNow.get(Calendar.HOUR_OF_DAY);
         int currentMinute = rightNow.get(Calendar.MINUTE);
-        currentHour=12;
-        currentMinute=35;
+
+        for ( LedBox led  : mLed )  led.fillLed(currentHour, currentMinute);
 
 
 
-
-
-        updateBin("h0_8", currentHour%10 , 8, "R.color.cJaune8");
-        updateBin("h0_4", currentHour%10 , 4, "R.color.cJaune4");
-        updateBin("h0_2", currentHour%10 , 2, "R.color.cJaune2");
-        updateBin("h0_1", currentHour%10 , 1, "R.color.cJaune1");
-
-        
-        updateBin("m1_4", currentMinute/10 , 4, "R.color.cVert4");
-        updateBin("m1_2", currentMinute/10 , 2, "R.color.cVert2");
-        updateBin("m1_1", currentMinute/10 , 1, "R.color.cVert1");
-        
-        updateBin("m0_8", currentMinute%10 , 8, "R.color.cBleu8");
-        updateBin("m0_4", currentMinute%10 , 4, "R.color.cBleu4");
-        updateBin("m0_2", currentMinute%10 , 2, "R.color.cBleu2");
-        updateBin("m0_1", currentMinute%10 , 1, "R.color.cBleu1");
-
-        updateBin("h1_1", 2 , 1, "R.color.cRouge1");
-        updateBin("h1_2", 2 , 2, "R.color.cRouge2");
-
-
-        //ima.invalidate();
+        ima.invalidate();
         
     }
 
-    void updateBin(String pName, int digit, int h, String col){
-        VectorChildFinder vector = new VectorChildFinder(this, R.drawable.fond, ima);
-        VectorDrawableCompat.VFullPath p1= vector.findPathByName(pName);
-        //int mcol =  getResources().getColor(getResources().
-        //        getIdentifier(col, "color", getPackageName()));
-        VectorDrawableCompat.VFullPath p2= vector.findPathByName("h0_8");
-        p2.setFillColor(Color.YELLOW);
 
-        //Very Ugly
-        digit = digit% (h*2);
-        if(digit/h==1)
-            p1.setFillColor(Color.RED);
-        else
-            p1.setFillColor(Color.BLUE);
-        //ima.invalidate();
-
-    }
 
 }
