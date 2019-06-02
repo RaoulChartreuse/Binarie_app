@@ -4,8 +4,10 @@ import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.app.AlarmManager;
 import android.app.PendingIntent;
+import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.widget.FrameLayout;
@@ -21,6 +23,10 @@ public class BinarieActivity extends Activity {
     ImageView ima;
     public static String CLOCK_UPDATE = "com.example.Binarie.CLOCK_UPDATE";
     LedBox mLed[];
+
+    //From stackoverflow
+    ///https://stackoverflow.com/questions/5457186/best-way-to-update-textview-every-minute-on-the-minute
+    BroadcastReceiver _broadcastReceiver;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -54,6 +60,7 @@ public class BinarieActivity extends Activity {
 
         setContentView(mFrame);
 
+
     }
 
 
@@ -68,9 +75,9 @@ public class BinarieActivity extends Activity {
     protected void onStop(){
         super.onStop();
         Context context = getApplicationContext();
-        // Stop the Timer
-        AlarmManager alarmManager = (AlarmManager)context.getSystemService(Context.ALARM_SERVICE);
-        alarmManager.cancel(createClockTickIntent(context));
+
+        if (_broadcastReceiver != null)
+            unregisterReceiver(_broadcastReceiver);
     }
 
     @Override
@@ -78,10 +85,17 @@ public class BinarieActivity extends Activity {
         super.onStart();
         // Create the Timer
         Context context = getApplicationContext();
-        AlarmManager alarmManager = (AlarmManager) context.getSystemService(Context.ALARM_SERVICE);
-        Calendar calendar = Calendar.getInstance();
-        calendar.setTimeInMillis(System.currentTimeMillis());
-        alarmManager.setRepeating(AlarmManager.RTC, calendar.getTimeInMillis(), 60 * 1000, createClockTickIntent(context));
+
+        //From stack overflow
+        _broadcastReceiver = new BroadcastReceiver() {
+            @Override
+            public void onReceive(Context ctx, Intent intent) {
+                if (intent.getAction().compareTo(Intent.ACTION_TIME_TICK) == 0)
+                    updateClock();
+            }
+        };
+
+        registerReceiver(_broadcastReceiver, new IntentFilter(Intent.ACTION_TIME_TICK));
     }
 
     void updateClock(){
